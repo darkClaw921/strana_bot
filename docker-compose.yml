@@ -1,0 +1,54 @@
+version: '3.3'
+
+services:
+  postgres_exporter:
+    container_name: exporter_container
+    image: prometheuscommunity/postgres-exporter:latest
+    environment:
+      - DATA_SOURCE_URI="${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/habrdb?sslmode=disable"
+      - PG_EXPORTER_EXTEND_QUERY_PATH="/etc/postgres_exporter/queries.yaml"
+    volumes:
+      - ./queries.yaml:/etc/postgres_exporter/queries.yaml:ro
+    restart: unless-stopped
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    volumes:
+      - ./redis-data:/data
+
+  telegram_connect:
+    image: telegram_connect
+    build:
+      context: ./strana_bot/telegramConnect
+    env_file: .env
+
+  instagram_connect:
+    image: instagram_connect
+    build:
+      context: ./strana_bot/instagramConnect
+    env_file: .env
+
+  handler_message:
+    image: handler_message
+    build:
+      context: ./strana_bot/handlerMessage
+    env_file: .env
+
+  generate_answer:
+    image: generate_answer
+    build:
+      context: ./strana_bot/generateAnswer
+    env_file: .env
+
+  sender_message:
+    image: sender_message
+    build:
+      context: ./strana_bot/senderMessage
+    env_file: .env
+
+  vector_db_work:
+    image: vector_db_work
+    build:
+      context: ./strana_bot/vectorDBwork
+    env_file: .env
