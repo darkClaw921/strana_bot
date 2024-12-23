@@ -70,7 +70,7 @@ services:
     restart: unless-stopped
 
   telegram_connect:
-    image: telegram_connect
+    # image: telegram_connect
     volumes:
       - ./strana_bot/telegramConnect:/app
       # - ./pyproject.toml:/app/pyproject.toml
@@ -90,7 +90,7 @@ services:
       - postgres
 
   instagram_connect:
-    image: instagram_connect
+    # image: instagram_connect
     volumes:
       - ./strana_bot/instagramConnect:/app
       # - ./pyproject.toml:/app/pyproject.toml    restart: unless-stopped
@@ -133,7 +133,7 @@ services:
     #   - 5003:5003
 
   generate_answer:
-    image: generate_answer
+    # image: generate_answer
     volumes:
       - ./strana_bot/generateAnswer:/app
       # - ./pyproject.toml:/app/pyproject.toml
@@ -157,7 +157,7 @@ services:
     #   - 5004:5004
 
   sender_message:
-    image: sender_message
+    # image: sender_message
     volumes:
       - ./strana_bot/senderMessage:/app
       # - ./pyproject.toml:/app/pyproject.toml
@@ -172,7 +172,7 @@ services:
       - WEBHOOK_VERIFY_TOKEN=${WEBHOOK_VERIFY_TOKEN}
   
   vector_db_work:
-    image: vector_db_work
+    # image: vector_db_work
  
       # - ./pyproject.toml:/app/pyproject.toml
     restart: unless-stopped
