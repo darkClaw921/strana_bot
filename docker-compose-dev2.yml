@@ -93,8 +93,7 @@ services:
     image: instagram_connect
     volumes:
       - ./strana_bot/instagramConnect:/app
-      # - ./pyproject.toml:/app/pyproject.toml
-    restart: unless-stopped
+      # - ./pyproject.toml:/app/pyproject.toml    restart: unless-stopped
     build:
       context: ./strana_bot/instagramConnect
     environment:
@@ -103,8 +102,9 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_URL=${POSTGRES_URL}
      
-      - INSTA_USER=${INSTA_USER}
-      - INSTA_PASSWORD=${INSTA_PASSWORD}
+      - INSTAGRAM_ACCESS_TOKEN=${INSTAGRAM_ACCESS_TOKEN}
+      - INSTAGRAM_PAGE_ID=${INSTAGRAM_PAGE_ID}
+      - WEBHOOK_VERIFY_TOKEN=${WEBHOOK_VERIFY_TOKEN}
       - HANDLER_MESSAGE_URL=${HANDLER_MESSAGE_URL}:${PORT_HANDLER_MESSAGE}
     depends_on:
       - postgres 
@@ -150,6 +150,7 @@ services:
       - VECTOR_DB_WORK_URL=${VECTOR_DB_WORK_URL}:${PORT_VECTOR_DB_WORK}
       - PORT_GENERATE_ANSWER=${PORT_GENERATE_ANSWER}
       - GRAPHQL=${GRAPHQL}
+      - SECRET_KEY=${SECRET_KEY}
       - GIGA_CHAT_API_KEY=${GIGA_CHAT_API_KEY}
 
     # ports:
@@ -165,14 +166,14 @@ services:
       context: ./strana_bot/senderMessage
     environment:
       - TOKEN_BOT=${TOKEN_BOT} #telegram
-      - INSTA_USER=${INSTA_USER}
-      - INSTA_PASSWORD=${INSTA_PASSWORD}
       - PORT_SENDER_MESSAGE=${PORT_SENDER_MESSAGE}
+      - INSTAGRAM_ACCESS_TOKEN=${INSTAGRAM_ACCESS_TOKEN}
+      - INSTAGRAM_PAGE_ID=${INSTAGRAM_PAGE_ID}
+      - WEBHOOK_VERIFY_TOKEN=${WEBHOOK_VERIFY_TOKEN}
   
   vector_db_work:
     image: vector_db_work
- #   volumes:
- #     - ./strana_bot/senderMessage:/app
+ 
       # - ./pyproject.toml:/app/pyproject.toml
     restart: unless-stopped
     build:
@@ -183,6 +184,7 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_URL=${POSTGRES_URL}
       - PORT_VECTOR_DB_WORK=${PORT_VECTOR_DB_WORK}
+      
   # bash:
   #   image: bash
   #   tty: true

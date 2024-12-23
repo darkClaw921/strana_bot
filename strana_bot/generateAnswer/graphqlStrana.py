@@ -22,67 +22,55 @@ import json
 
 def signat():
     secret_key = SECRET_KEY
-    version_header = "2.49.0"  # Пример версии
-    base_url = graphQL
-    timestamp = int(time.time())  # Текущая метка времени в секундах
-    time_interval = 60  # Промежуток в секундах
-
-    # Метод для вычисления salt
-    def compute_salt(secret_key, version_header, method='md5_lowercase'):
-        combined = f"{secret_key}{version_header}"
-        if method == 'md5_lowercase':
-            return hashlib.md5(combined.encode()).hexdigest()
-     
-
-    # Метод для вычисления подписи
-    def compute_signature(salt, url, timestamp, method='md5_lowercase'):
-        value_string = f"{salt}{url}/{timestamp}"
-        # print(f'{value_string=}')
-        if method == 'md5_lowercase':
-            return hashlib.md5(value_string.encode()).hexdigest()
-        
-    # Проверка метки времени
-    def is_timestamp_valid(received_timestamp):
-        current_time = int(time.time())
-        return abs(current_time - received_timestamp) <= time_interval
+    version_header = "2.49.0"
+    timestamp = int(time.time())
     
-    received_timestamp = timestamp  
-    if is_timestamp_valid(received_timestamp):
-        print("Timestamp is valid.")
-    else:
-        print("Timestamp is invalid.")
-        # Генерация salt
-    salt = compute_salt(secret_key=secret_key, version_header=version_header)
-    # print(f'{salt=}')
-    # Генерация подписи
-    # print(f'{base_url=}')
-    signature = compute_signature(salt=salt, url=base_url, timestamp=timestamp)
-
-    # Заголовки
+    # Вычисляем salt
+    combined = f"{secret_key}{version_header}"
+    salt = hashlib.md5(combined.encode()).hexdigest()
+    
+    # Вычисляем подпись
+    value_string = f"{salt}{url}/{timestamp}"
+    signature = hashlib.md5(value_string.encode()).hexdigest()
+    
+    # Формируем заголовки
     headers = {
         "X-Version": version_header,
         "X-Qrator-Hash": signature,
         "X-Qrator-Timestamp": str(timestamp),
-        'Content-Type': 'text/plain',
-
-        
+        "Content-Type": "application/json",
+        "User-Agent": "Mozilla/5.0",
+        "Accept": "application/json",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Connection": "keep-alive",
+        "Cookie": f"qrator_jsid={salt}"
     }
-    pprint(headers)
+    
+    # print("Generated headers:")
+    # pprint(headers)
     return headers
-
 
 
 def execute_query(query:str, variables=None):
     headers= signat()
-    data=query.encode()
+    # data=query.encode()
     # response = requests.post(url+'/', headers=headers,json={'query': query, 'variables': variables,} )
-    print(f'{query=}')
+    # print(f'{query=}')
     # print(f'{variables=}')
-    
+
+    json_data = {
+        'query':query,
+        'variables': variables,
+        'operationName': 'getLayoutsList',
+    }
+
     # response = requests.post(url+'/', headers=headers, json={'query': query, 'variables': variables,}, data=data)
-    jsonData={'query': query}
+    response = requests.post(url+'/', 
+                             headers=headers, 
+                             json=json_data)
+    # jsonData={'query': query}
     # pprint(json.dumps(jsonData))
-    response = requests.post(url+'/', headers=headers,  data=json.dumps(jsonData))
+    # response = requests.post(url+'/', headers=headers,  data=json.dumps(jsonData))
 
     if response.status_code == 200:
         return response.json()
@@ -250,8 +238,7 @@ get_layouts_list_query = '''query getLayoutsList(
             hasPreviousPage
         }
     }
-}
-'''
+}'''
 
 # Пример параметров для запроса
 variables = {
@@ -308,6 +295,10 @@ def get_all_layouts_list():
         all_layouts.extend(layouts['edges'])
         has_next_page = layouts['pageInfo']['hasNextPage']
         after_cursor = layouts['pageInfo']['endCursor']  # Получаем курсор для следующей страницы
+        print(has_next_page)
+        print(after_cursor)
+        print(len(all_layouts))
+        
 
     return all_layouts
 
@@ -367,6 +358,8 @@ def get_layouts_text():
 
 if __name__ == "__main__":
     text = get_layouts_text()
+    with open('layouts.txt', 'w') as f:
+        f.write(text)
     print(text)
 # try:
 #     layouts = execute_query(get_layouts_list_query, variables=variables)

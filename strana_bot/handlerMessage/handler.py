@@ -122,23 +122,29 @@ async def handler_in_message(chat_id: int, text: str, messanger: str, username:s
     if find_phone_numbers(text) != []:
         isPersonalDataUser=True
         user=postgreWork.get_user(userID=chat_id)
-        if user.name in None:
+        if user.name is None:
             params={'chat_id': chat_id, 'text': 'Еще мне нужно ваще имя', 'messanger': messanger}
         
-        await request_data_param(f'http://{SENDER_MESSAGE_URL}/send_message', params)
+            await request_data_param(f'http://{SENDER_MESSAGE_URL}/send_message', params)
+            return
+        
         leadID=create_lead(name=user.name, phone=user.phone, 
-                           userID=user.userID,
+                           userID=user.id,
                            nicknameUser=user.nickname)
-        user.lead_id=leadID
-        postgreWork.update_user_commit(user)
-
+        # user.lead_id=leadID
+        fields={
+            'lead_id': leadID
+        }
+        postgreWork.update_user(userID=user.id, fields=fields)
+        params={'chat_id': chat_id, 'text': 'Ваша заявка принята, ожидайте пока с вами свяжется менеджер', 'messanger': messanger}
+        await request_data_param(f'http://{SENDER_MESSAGE_URL}/send_message', params)
         return
 
     if text in ['питер', 'спб', 'spb']:
         text='Санкт-Петербург'
     most_similar_city, highest_similarity = find_most_similar_city(input_string=text.title(),
                                                                    cities_dict=CITIES_SLUG)
-    if highest_similarity >= 0.40:
+    if highest_similarity >= 0.60:
 
         fields={
             'city': CITIES_SLUG[most_similar_city],

@@ -49,9 +49,12 @@ def update_or_create_model_index():
     global MODELS_INDEX
     # text=prepare_table_for_text()
     text='данные о компании'
-    #TODO: не работает
+    
+    print('начали получать квартиры')
     # text1=get_layouts_text()
-    text1='Планировка Страна.Береговая в Новосибирск, ул. 2-я Сухарная, 109/2:\n'
+    with open('layouts.txt') as f:
+        text1=f.read()
+    # text1='Планировка Страна.Береговая в Новосибирск, ул. 2-я Сухарная, 109/2:\n'
 
 #     text1="""Планировка Страна.Береговая в Новосибирск, '
 # 'ул. 2-я Сухарная, 109/2:\n'

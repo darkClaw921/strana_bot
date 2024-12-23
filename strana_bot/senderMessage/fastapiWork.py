@@ -17,7 +17,7 @@ from datetime import datetime
 from pprint import pformat, pprint
 # from fastapi import FastAPI, 
 # TOKEN_BOT = os.getenv('TOKEN_BOT_EVENT')
-
+from instagram_connector import InstagramConnector
 app = FastAPI(debug=False)
 load_dotenv()
 PORT = os.getenv('PORT_SENDER_MESSAGE')
@@ -32,7 +32,7 @@ app = FastAPI(
 app.mount("/static", StaticFiles(directory="static/"), name="static")
 templates = Jinja2Templates(directory="templates")
 logs = []
-
+instagram=InstagramConnector()
 # oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 # @app.get("/items/")
 # async def read_items(token: Annotated[str, Depends(oauth2_scheme)]):
@@ -60,7 +60,10 @@ async def send_message(chat_id: int, text: str, messanger: str):
         case 'facebook':
             return {"message": "Facebook not supported yet"}
         case 'instagram':
-            return {"message": "Instagram not supported yet"}
+            
+            instagram.send_message(chat_id, text)
+
+            return {"message": "Message send"}
 
         case _:
             return {"message": "Unsupported messenger"}
